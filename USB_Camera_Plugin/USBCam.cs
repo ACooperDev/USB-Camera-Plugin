@@ -31,12 +31,20 @@ namespace USB_Camera_Plugin
         private const string ImageResultEventID = "ReadImageEvent";
         private readonly ScriptablePoint _readImageEvent;
 
-        //Do I need this?
+        private const string ConnectedEventID = "ConnectedEvent";
+        private readonly ScriptablePoint _connectedEvent;
+
+        private const string DisconnectedEventID = "DisconnectedEvent";
+        private readonly ScriptablePoint _disconnectedEvent;
+
+
+        //Inherited method.
         protected override ScriptablePoint[] GetScriptPoints()
         {
             return _scriptPoints;
         }
-
+        
+         
         //Events for the component.
         public USBCam()
         {
@@ -49,12 +57,17 @@ namespace USB_Camera_Plugin
                         new ArgumentDescriptor("ImageResult", typeof(CogImage24PlanarColor)),
                         },
                 returnType: typeof(void));
+
+            _connectedEvent = new ScriptablePoint(ConnectedEventID,"Connected Event","Some description");
+
+            _disconnectedEvent = new ScriptablePoint(DisconnectedEventID, "Disconnected Event", "Some description");
+
             //Create scriptable points array to make events accesable in Designer.
-            _scriptPoints = new[] {_readImageEvent};
+            _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent};
 
         }
 
-        //$Functions for component.
+        //Saved parameters.
         //Published
         [Published]
         [Saved]
@@ -64,10 +77,11 @@ namespace USB_Camera_Plugin
             set => SetBackingField(ref _camIndex, value);
         }
 
+        //$Functions for component.
         [Published]
         public void FireConnectEvent()
         {
-            // Dispose of existing capture if necessary
+            //Dispose of existing capture if necessary
             if (_capture != null)
             {
                 _capture.Stop();
@@ -77,6 +91,8 @@ namespace USB_Camera_Plugin
             _capture = new Emgu.CV.Capture(_camIndex);
 
             _capture.ImageGrabbed += _capture_ImageGrabbed;
+
+            RunScript(ConnectedEventID);
         }
       
         [Published]
@@ -86,6 +102,7 @@ namespace USB_Camera_Plugin
             _capture.Stop();
             _capture.Dispose();
             _capture = null;
+            RunScript(DisconnectedEventID);
         }
 
         [Published]
@@ -95,31 +112,34 @@ namespace USB_Camera_Plugin
         }
 
 
+        //Emgu.CV event called when an image is grabbed.
         private void _capture_ImageGrabbed(object sender, EventArgs e)
         {            
             try
             {
-                // Stop the capture
+                //Stop the capture
                 _capture.Stop();
 
-                // Initialize a new Mat object
+                //Initialize a new Mat object
                 using (Mat m = new Mat())
                 {
-                    // Retrieve the current frame
+                    //Retrieve the current frame
                     _capture.Retrieve(m); _capture.Retrieve(m);
 
-                    // Convert Mat to Bitmap
+                    //Convert Mat to Bitmap
                     using (System.Drawing.Bitmap myBitmapColor = m.Bitmap)
                     {
-                        // Process the image
+                        //Convert to VPro object.
                         _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
+
+                        //Run scriptable event.
                         RunScript(ImageResultEventID, _resultImage);
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Handle the exception (e.g., log the error or show a message)
+                //Handle the exception (e.g., log the error or show a message)
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
 
