@@ -84,14 +84,63 @@ namespace USB_Camera_Plugin
 
         private void _capture_ImageGrabbed(object sender, EventArgs e)
         {
-            _capture.Stop();
 
-            Mat m = new Mat();
-            _capture.Retrieve(m);
-            System.Drawing.Bitmap myBitmapColor = m.Bitmap;
-            _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
-            RunScript(ImageResultEventID, _resultImage);
-            _capture.Dispose();
+            if (_capture == null)
+            {
+                return;
+            }
+
+            Mat mat = null;
+            System.Drawing.Bitmap myBitmapColor = null;
+
+            try
+            {
+                _capture.Stop();
+
+                mat = new Mat();
+                _capture.Retrieve(mat);
+
+                if (mat.IsEmpty)
+                {
+                    throw new InvalidOperationException("Captured image is empty.");
+                }
+
+                myBitmapColor = mat.Bitmap;
+
+                if (myBitmapColor == null)
+                {
+                    throw new InvalidOperationException("Failed to convert Mat to Bitmap.");
+                }
+
+                _resultImage = new CogImage24PlanarColor(myBitmapColor);
+                RunScript(ImageResultEventID, _resultImage);
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                // Ensure resources are disposed properly
+                if (myBitmapColor != null)
+                {
+                    myBitmapColor.Dispose();
+                    myBitmapColor = null;
+                }
+
+                if (mat != null)
+                {
+                    mat.Dispose();
+                    mat = null;
+                }
+
+                if(_capture != null)
+                {
+                    _capture.Dispose();
+                                   }
+            }
+
         }
     }
     
