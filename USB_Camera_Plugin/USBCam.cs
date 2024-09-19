@@ -11,7 +11,7 @@ using Emgu.CV.CvEnum;
 using System.Windows.Forms;
 
 //Scriptable component for USB cameras based on EMGU.CV 3.1.0.1
-//https://github.com/emgucv/emgucv/releases/tag/4.9.0
+//https://www.nuget.org/packages/EmguCV/3.1.0.1
 
 namespace USB_Camera_Plugin
 {
@@ -27,6 +27,7 @@ namespace USB_Camera_Plugin
     [TypeName("ScriptableComponent")]
     public class USBCam : UserComponentBase
     {
+        //Global variables
         private readonly ScriptablePoint[] _scriptPoints;
 
         private bool _live = false;
@@ -47,19 +48,17 @@ namespace USB_Camera_Plugin
         private const string GetCapPropEventID = "GetCapPropEvent";
         private readonly ScriptablePoint _getCapPropEvent;
          
-
         //Inherited method.
         protected override ScriptablePoint[] GetScriptPoints()
         {
             return _scriptPoints;
         }
         
-         
-        //Events for the component.
         public USBCam()
         {
             capPropValues = new List<double>();
 
+            //Scriptable events for the component.
             _readImageEvent = new ScriptablePoint(
                 ImageResultEventID,
                 "Read Image Event",
@@ -76,7 +75,6 @@ namespace USB_Camera_Plugin
 
             //Create scriptable points array to make events accesable in Designer.
             _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent};
-
         }
 
         //Saved parameters.
@@ -141,11 +139,6 @@ namespace USB_Camera_Plugin
             _live = live;
         }
 
-
-        /// <summary>
-        /// ///////////////////////////////////////////////////////////////
-        /// </summary>
-        /// <param name="live"></param>
         [Published]
         public List<double> FireSaveCapProp()
         {
@@ -159,10 +152,7 @@ namespace USB_Camera_Plugin
             // Loop through all CapProp values and save the settings
             foreach (CapProp prop in Enum.GetValues(typeof(CapProp)))
             {
-               
-                    capPropValues.Add(_capture.GetCaptureProperty(prop));
-               
-                
+                capPropValues.Add(_capture.GetCaptureProperty(prop));
             }
 
             return capPropValues;
@@ -175,9 +165,9 @@ namespace USB_Camera_Plugin
             // Loop through all CapProp values and save the settings
             foreach (CapProp prop in Enum.GetValues(typeof(CapProp)))
             {
-            if (prop != Emgu.CV.CvEnum.CapProp.Settings)
-            {
-                _capture.SetCaptureProperty(prop, capPropList[index]);
+                if (prop != Emgu.CV.CvEnum.CapProp.Settings)
+                {
+                    _capture.SetCaptureProperty(prop, capPropList[index]);
                 }
                 index++;
             }
@@ -189,7 +179,7 @@ namespace USB_Camera_Plugin
             try
             {
                 //Stop the capture
-                if (!_live)
+                if(!_live)
                 {
                     _capture.Stop();
                 }
@@ -216,8 +206,6 @@ namespace USB_Camera_Plugin
                 //Handle the exception (e.g., log the error or show a message)
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
-
         }
-    }
-    
+    } 
 }
