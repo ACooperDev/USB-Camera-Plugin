@@ -96,19 +96,20 @@ namespace USB_Camera_Plugin
         public void FireDisconnectEvent()
         {
             
-            if (_capture != null)
-            {
-                _capture.Dispose();
-                _capture = null;
+             
                 _capture.ImageGrabbed -= _capture_ImageGrabbed;
-                _capture.Stop();
-            }
+            _capture.Stop();
+            _capture.Dispose();
+                _capture = null;
+                
+              
+            
         }
 
         [Published]
         public void FireTriggerEvent()
         {
-     
+            
             _capture.Start();
            
            
@@ -117,8 +118,8 @@ namespace USB_Camera_Plugin
 
         private void _capture_ImageGrabbed(object sender, EventArgs e)
         {
-
-            _capture.Stop();
+            /*
+            _capture.Stop();//If you don't do this it will go live.
             Mat m = new Mat();
           
             _capture.Retrieve(m); _capture.Retrieve(m);
@@ -130,7 +131,34 @@ namespace USB_Camera_Plugin
             myBitmapColor.Dispose();
          
             
-              
+              */
+
+            try
+            {
+                // Stop the capture
+                _capture.Stop();
+
+                // Initialize a new Mat object
+                using (Mat m = new Mat())
+                {
+                    // Retrieve the current frame
+                    _capture.Retrieve(m); _capture.Retrieve(m);
+
+                    // Convert Mat to Bitmap
+                    using (System.Drawing.Bitmap myBitmapColor = m.Bitmap)
+                    {
+                        // Process the image
+                        _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
+                        RunScript(ImageResultEventID, _resultImage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception (e.g., log the error or show a message)
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            
 
         }
     }
