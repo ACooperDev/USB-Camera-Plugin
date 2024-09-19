@@ -85,6 +85,7 @@ namespace USB_Camera_Plugin
         private void _capture_ImageGrabbed(object sender, EventArgs e)
         {
             _capture.Stop();
+
             Mat m = new Mat();
             _capture.Retrieve(m);
             System.Drawing.Bitmap myBitmapColor = m.Bitmap;
