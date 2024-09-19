@@ -88,6 +88,7 @@ namespace USB_Camera_Plugin
         }
 
         //$Functions for component.
+        //Connect to a camera.
         [Published]
         public void FireConnectEvent()
         {
@@ -105,6 +106,7 @@ namespace USB_Camera_Plugin
             RunScript(ConnectedEventID);
         }
       
+        //Disconnect from a camera.
         [Published]
         public void FireDisconnectEvent()
         {
@@ -123,30 +125,36 @@ namespace USB_Camera_Plugin
             }
         }
 
+        //Trigger a camera.
         [Published]
         public void FireTriggerEvent()
         {
+            //When an image is acquired the subscribed method is called _capture_ImageGrabbed.
             _capture.Start();
         }
 
+        //Popup a UI wizard for setting capture properties.
         [Published]
         public void FireCapPropWizard()
         {
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Settings, 1);
         }
 
+        //Set an individual capture property.
         [Published]
         public void FireSetCapProp(Emgu.CV.CvEnum.CapProp capProp, double value)
         {
             _capture.SetCaptureProperty(capProp, value);
         }
 
+        //Set the live mode logic.
         [Published]
         public void FireLiveMode(bool live)
         {
             _live = live;
         }
 
+        //Save a copy of the current capture properties.
         [Published]
         public List<double> FireSaveCapProp()
         {
@@ -166,6 +174,7 @@ namespace USB_Camera_Plugin
             return capPropValues;
         }
 
+        ///Load a copy of the current capture properties.
         [Published]
         public void FireLoadCapProp(List<double> capPropList)
         {
