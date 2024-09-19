@@ -10,8 +10,10 @@ using Cognex.Designer.Core;
 using Cognex.Designer.Core.Functions;
 using Cognex.Designer.Scripting;
 using Cognex.VisionPro;
+using OpenTK.Graphics.OpenGL;
+using Emgu.CV.Structure;
 
-//Scriptable component for USB cameras based on EMGU.CV 4.9.0
+//Scriptable component for USB cameras based on EMGU.CV 3.1.0.1
 //https://github.com/emgucv/emgucv/releases/tag/4.9.0
 
 namespace USB_Camera_Plugin
@@ -23,13 +25,15 @@ namespace USB_Camera_Plugin
     //The description of the component.
     [Description("A component for capturing images from a USB camera.")]
     //Expose a property to the new component dialog aka Parameter Configuration window.
-    [Parameter(1, nameof(_camIndex), "Camera Index", typeof(int), null)]
+    [Parameter(1, nameof(camIndex), "Camera Index", typeof(int), null)]
     //The tpye ID used during save. Allows you to refactor the code later while not breaking serialization.
     [TypeName("ScriptableComponent")]
     public class USBCam : UserComponentBase
     {
         private readonly ScriptablePoint[] _scriptPoints;
         private int _camIndex;
+        private Emgu.CV.Capture _capture;
+        private CogImage24PlanarColor _resultImage;
 
         private const string ImageResultEventID = "ReadImageEvent";
         private readonly ScriptablePoint _readImageEvent;
@@ -49,7 +53,7 @@ namespace USB_Camera_Plugin
                 "Some description",
                     runParameters: new[]
                         {
-                        new ArgumentDescriptor("ImageResult", typeof(CogImage8Grey)),
+                        new ArgumentDescriptor("ImageResult", typeof(CogImage24PlanarColor)),
                         },
                 returnType: typeof(void));
             //Create scriptable points array to make events accesable in Designer.
@@ -57,6 +61,37 @@ namespace USB_Camera_Plugin
 
         }
 
+
+        [Published]
+        [Saved]
+        public int camIndex
+        {
+            get => _camIndex;
+            set => SetBackingField(ref _camIndex, value);
+        }
+
+
+        //$Functions for component.
+        //Published
+        [Published]
+        public void FireTriggerEvent()
+        {
+            _capture = new Emgu.CV.Capture(_camIndex);
+
+            _capture.ImageGrabbed += _capture_ImageGrabbed;
+            _capture.Start();
+        }
+
+        private void _capture_ImageGrabbed(object sender, EventArgs e)
+        {
+            _capture.Stop();
+            Mat m = new Mat();
+            _capture.Retrieve(m);
+            System.Drawing.Bitmap myBitmapColor = m.Bitmap;
+            _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
+            RunScript(ImageResultEventID, _resultImage);
+            _capture.Dispose();
+        }
     }
     
 }
