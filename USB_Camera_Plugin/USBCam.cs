@@ -6,9 +6,9 @@ using Cognex.Designer.Core.Functions;
 using Cognex.Designer.Scripting;
 using Cognex.VisionPro;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Emgu.CV.CvEnum;
-using System.Windows.Forms;
+
+//Add a FireGetCapProp
 
 //Scriptable component for USB cameras based on EMGU.CV 3.1.0.1
 //https://www.nuget.org/packages/EmguCV/3.1.0.1
@@ -27,7 +27,7 @@ namespace USB_Camera_Plugin
     [TypeName("ScriptableComponent")]
     public class USBCam : UserComponentBase
     {
-        //Global variables
+        //Global variables.
         private readonly ScriptablePoint[] _scriptPoints;
 
         private bool _live = false;
@@ -77,7 +77,7 @@ namespace USB_Camera_Plugin
             _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent};
         }
 
-        //Saved parameters.
+        //Saved parameters for the component.
         //Published
         [Published]
         [Saved]
@@ -91,28 +91,36 @@ namespace USB_Camera_Plugin
         [Published]
         public void FireConnectEvent()
         {
-            //Dispose of existing capture if necessary
-            if (_capture != null)
+            //Dispose of existing capture if necessary.
+            if(_capture != null)
             {
                 _capture.Stop();
                 _capture.Dispose();
                 _capture = null;
             }
             _capture = new Emgu.CV.Capture(_camIndex);
-
             _capture.ImageGrabbed += _capture_ImageGrabbed;
 
+            //Run scriptable event.
             RunScript(ConnectedEventID);
         }
       
         [Published]
         public void FireDisconnectEvent()
         {
-            _capture.ImageGrabbed -= _capture_ImageGrabbed;
-            _capture.Stop();
-            _capture.Dispose();
-            _capture = null;
-            RunScript(DisconnectedEventID);
+            try
+            {
+                _capture.ImageGrabbed -= _capture_ImageGrabbed;
+                _capture.Stop();
+                _capture.Dispose();
+                _capture = null;
+
+                //Run scriptable event.
+                RunScript(DisconnectedEventID);
+            }catch(Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
         [Published]
@@ -145,12 +153,12 @@ namespace USB_Camera_Plugin
             try
             {
                 capPropValues.Clear();
-            } catch(Exception ex) {
+            }catch(Exception ex) {
                 Console.WriteLine($"An error occurred: {ex.Message}");
             };
             
-            // Loop through all CapProp values and save the settings
-            foreach (CapProp prop in Enum.GetValues(typeof(CapProp)))
+            //Loop through all CapProp values and save the settings
+            foreach(CapProp prop in Enum.GetValues(typeof(CapProp)))
             {
                 capPropValues.Add(_capture.GetCaptureProperty(prop));
             }
@@ -161,11 +169,11 @@ namespace USB_Camera_Plugin
         [Published]
         public void FireLoadCapProp(List<double> capPropList)
         {
+            //Loop through CapProp's and store their values.
             int index = 0;
-            // Loop through all CapProp values and save the settings
-            foreach (CapProp prop in Enum.GetValues(typeof(CapProp)))
+            foreach(CapProp prop in Enum.GetValues(typeof(CapProp)))
             {
-                if (prop != Emgu.CV.CvEnum.CapProp.Settings)
+                if(prop != Emgu.CV.CvEnum.CapProp.Settings)
                 {
                     _capture.SetCaptureProperty(prop, capPropList[index]);
                 }
@@ -178,22 +186,22 @@ namespace USB_Camera_Plugin
         {            
             try
             {
-                //Stop the capture
+                //Live capture logic.
                 if(!_live)
                 {
                     _capture.Stop();
                 }
 
-                //Initialize a new Mat object
-                using (Mat m = new Mat())
+                //Initialize a new Mat object.
+                using(Mat m = new Mat())
                 {
-                    //Retrieve the current frame
+                    //Retrieve the current frame.
                     _capture.Retrieve(m); _capture.Retrieve(m);
 
-                    //Convert Mat to Bitmap
-                    using (System.Drawing.Bitmap myBitmapColor = m.Bitmap)
+                    //Convert Mat to Bitmap.
+                    using(System.Drawing.Bitmap myBitmapColor = m.Bitmap)
                     {
-                        //Convert to VPro object.
+                        //Convert to VPro image.
                         _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
 
                         //Run scriptable event.
@@ -201,9 +209,8 @@ namespace USB_Camera_Plugin
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                //Handle the exception (e.g., log the error or show a message)
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
