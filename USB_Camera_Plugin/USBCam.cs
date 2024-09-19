@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cognex.Designer.Core;
 using Emgu.CV;
 using Cognex.Designer.Components;
-using Cognex.Designer.Core;
 using Cognex.Designer.Core.Functions;
 using Cognex.Designer.Scripting;
 using Cognex.VisionPro;
-using OpenTK.Graphics.OpenGL;
-using Emgu.CV.Structure;
 
 //Scriptable component for USB cameras based on EMGU.CV 3.1.0.1
 //https://github.com/emgucv/emgucv/releases/tag/4.9.0
@@ -61,7 +54,8 @@ namespace USB_Camera_Plugin
 
         }
 
-
+        //$Functions for component.
+        //Published
         [Published]
         [Saved]
         public int camIndex
@@ -69,10 +63,6 @@ namespace USB_Camera_Plugin
             get => _camIndex;
             set => SetBackingField(ref _camIndex, value);
         }
-
-
-        //$Functions for component.
-        //Published
 
         [Published]
         public void FireConnectEvent()
@@ -87,52 +77,26 @@ namespace USB_Camera_Plugin
             _capture = new Emgu.CV.Capture(_camIndex);
 
             _capture.ImageGrabbed += _capture_ImageGrabbed;
-
         }
-
-
-       
+      
         [Published]
         public void FireDisconnectEvent()
         {
-            
-             
-                _capture.ImageGrabbed -= _capture_ImageGrabbed;
+            _capture.ImageGrabbed -= _capture_ImageGrabbed;
             _capture.Stop();
             _capture.Dispose();
-                _capture = null;
-                
-              
-            
+            _capture = null;
         }
 
         [Published]
         public void FireTriggerEvent()
         {
-            
             _capture.Start();
-           
-           
         }
 
 
         private void _capture_ImageGrabbed(object sender, EventArgs e)
-        {
-            /*
-            _capture.Stop();//If you don't do this it will go live.
-            Mat m = new Mat();
-          
-            _capture.Retrieve(m); _capture.Retrieve(m);
-
-            System.Drawing.Bitmap myBitmapColor = m.Bitmap;
-            _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
-            RunScript(ImageResultEventID, _resultImage);
-            m.Dispose();
-            myBitmapColor.Dispose();
-         
-            
-              */
-              
+        {            
             try
             {
                 // Stop the capture
@@ -158,7 +122,6 @@ namespace USB_Camera_Plugin
                 // Handle the exception (e.g., log the error or show a message)
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
-            
 
         }
     }
