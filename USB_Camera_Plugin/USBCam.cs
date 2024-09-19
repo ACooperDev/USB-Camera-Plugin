@@ -132,7 +132,7 @@ namespace USB_Camera_Plugin
          
             
               */
-             
+              
             try
             {
                 // Stop the capture
