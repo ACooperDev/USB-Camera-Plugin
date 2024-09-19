@@ -73,73 +73,64 @@ namespace USB_Camera_Plugin
 
         //$Functions for component.
         //Published
+
         [Published]
-        public void FireTriggerEvent()
+        public void FireConnectEvent()
         {
+            // Dispose of existing capture if necessary
+            if (_capture != null)
+            {
+                _capture.Stop();
+                _capture.Dispose();
+                _capture = null;
+            }
             _capture = new Emgu.CV.Capture(_camIndex);
 
             _capture.ImageGrabbed += _capture_ImageGrabbed;
-            _capture.Start();
+
         }
+
+
+       
+        [Published]
+        public void FireDisconnectEvent()
+        {
+            
+            if (_capture != null)
+            {
+                _capture.Dispose();
+                _capture = null;
+                _capture.ImageGrabbed -= _capture_ImageGrabbed;
+                _capture.Stop();
+            }
+        }
+
+        [Published]
+        public void FireTriggerEvent()
+        {
+     
+            _capture.Start();
+           
+           
+        }
+
 
         private void _capture_ImageGrabbed(object sender, EventArgs e)
         {
 
-            if (_capture == null)
-            {
-                return;
-            }
+            _capture.Stop();
+            Mat m = new Mat();
+          
+            _capture.Retrieve(m); _capture.Retrieve(m);
 
-            Mat mat = null;
-            System.Drawing.Bitmap myBitmapColor = null;
-
-            try
-            {
-                _capture.Stop();
-
-                mat = new Mat();
-                _capture.Retrieve(mat);
-
-                if (mat.IsEmpty)
-                {
-                    throw new InvalidOperationException("Captured image is empty.");
-                }
-
-                myBitmapColor = mat.Bitmap;
-
-                if (myBitmapColor == null)
-                {
-                    throw new InvalidOperationException("Failed to convert Mat to Bitmap.");
-                }
-
-                _resultImage = new CogImage24PlanarColor(myBitmapColor);
-                RunScript(ImageResultEventID, _resultImage);
-            }
-            catch (Exception ex)
-            {
-                // Log or handle the exception as needed
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            finally
-            {
-                // Ensure resources are disposed properly
-                if (myBitmapColor != null)
-                {
-                    myBitmapColor.Dispose();
-                    myBitmapColor = null;
-                }
-
-                if (mat != null)
-                {
-                    mat.Dispose();
-                    mat = null;
-                }
-
-                if(_capture != null)
-                {
-                    _capture.Dispose();
-                                   }
-            }
+            System.Drawing.Bitmap myBitmapColor = m.Bitmap;
+            _resultImage = new Cognex.VisionPro.CogImage24PlanarColor(myBitmapColor);
+            RunScript(ImageResultEventID, _resultImage);
+            m.Dispose();
+            myBitmapColor.Dispose();
+         
+            
+              
 
         }
     }
