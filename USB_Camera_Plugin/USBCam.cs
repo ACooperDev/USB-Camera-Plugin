@@ -85,6 +85,7 @@ namespace USB_Camera_Plugin
             _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent, _getErrorEvent};
         }
 
+
         //Published
         //Saved parameters for the component.
         [Published]
