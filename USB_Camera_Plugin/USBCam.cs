@@ -8,8 +8,6 @@ using Cognex.VisionPro;
 using System.Collections.Generic;
 using Emgu.CV.CvEnum;
 
-//add a FireErrorOccured for anytime a try catch block happens.
-
 //Scriptable component for USB cameras based on EMGU.CV 3.1.0.1
 //https://www.nuget.org/packages/EmguCV/3.1.0.1
 
@@ -82,7 +80,7 @@ namespace USB_Camera_Plugin
                 "Some description",
                     runParameters: new[]
                     {
-                        new ArgumentDescriptor("Get CapProp", typeof(string)),
+                        new ArgumentDescriptor("GetCapProp", typeof(string)),
                     },
                     returnType: typeof(void));
 
@@ -92,7 +90,7 @@ namespace USB_Camera_Plugin
                 "Some description",
                     runParameters: new[]
                     {
-                        new ArgumentDescriptor("Get Error", typeof(string)),
+                        new ArgumentDescriptor("GetError", typeof(string)),
                     },
                     returnType: typeof(void));
 
@@ -126,7 +124,7 @@ namespace USB_Camera_Plugin
             }catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Previous connection disposal issue: " + ex.Message);
             }
 
             try
@@ -137,7 +135,7 @@ namespace USB_Camera_Plugin
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Connection/subscription issue: " + ex.Message);
             }
 
             RunScript(ConnectedEventID);
@@ -158,7 +156,7 @@ namespace USB_Camera_Plugin
             }catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Disconnect issue: " + ex.Message);
             }
         }
 
@@ -172,7 +170,7 @@ namespace USB_Camera_Plugin
             } catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Trigger issue: " + ex.Message);
             }
         }
 
@@ -186,7 +184,7 @@ namespace USB_Camera_Plugin
             }catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Camera property wizard issue: " + ex.Message);
             }
         }
 
@@ -200,7 +198,7 @@ namespace USB_Camera_Plugin
             }catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture property issue: " + ex.Message);
             }
         }
 
@@ -217,7 +215,7 @@ namespace USB_Camera_Plugin
             }catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture property issue: " + ex.Message);
             }
 
             return capPropValue;
@@ -239,7 +237,7 @@ namespace USB_Camera_Plugin
                 capPropValues.Clear();
             }catch(Exception ex) {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture property disposal issue :" + ex.Message);
             };
 
             try
@@ -251,7 +249,7 @@ namespace USB_Camera_Plugin
             }catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture property enumeration issue: " + ex.Message);
             }
 
             return capPropValues;
@@ -276,7 +274,7 @@ namespace USB_Camera_Plugin
             } catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture properly load issue: " + ex.Message);
             }
         }
 
@@ -305,7 +303,7 @@ namespace USB_Camera_Plugin
             catch(Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                RunScript(GetErrorEventID, ex.Message);
+                RunScript(GetErrorEventID, "Capture retrieval issue: " + ex.Message);
             }
         }
     } 
