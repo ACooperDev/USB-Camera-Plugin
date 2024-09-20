@@ -42,10 +42,7 @@ namespace USB_Camera_Plugin
 
         private const string DisconnectedEventID = "DisconnectedEvent";
         private readonly ScriptablePoint _disconnectedEvent;
-
-        private const string GetCapPropEventID = "GetCapPropEvent";
-        private readonly ScriptablePoint _getCapPropEvent;
-
+ 
         private const string GetErrorEventID = "GetErrorEvent";
         private readonly ScriptablePoint _getErrorEvent;
 
@@ -74,16 +71,6 @@ namespace USB_Camera_Plugin
 
             _disconnectedEvent = new ScriptablePoint(DisconnectedEventID, "Disconnected Event", "Some description");
 
-            _getCapPropEvent = new ScriptablePoint(
-                GetCapPropEventID,
-                "Get Capture Property",
-                "Some description",
-                    runParameters: new[]
-                    {
-                        new ArgumentDescriptor("GetCapProp", typeof(string)),
-                    },
-                    returnType: typeof(void));
-
             _getErrorEvent = new ScriptablePoint(
                 GetErrorEventID,
                 "Get Error Property",
@@ -95,7 +82,7 @@ namespace USB_Camera_Plugin
                     returnType: typeof(void));
 
             //Create scriptable points array to make events accesable in Designer.
-            _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent, _getCapPropEvent, _getErrorEvent};
+            _scriptPoints = new[] {_readImageEvent, _connectedEvent, _disconnectedEvent, _getErrorEvent};
         }
 
         //Published
@@ -211,7 +198,6 @@ namespace USB_Camera_Plugin
             try
             {
                capPropValue = _capture.GetCaptureProperty(capProp);
-                RunScript(GetCapPropEventID);
             }catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
