@@ -32,7 +32,7 @@ namespace USB_Camera_Plugin
         private int _camIndex;
         private Emgu.CV.Capture _capture;
         private CogImage24PlanarColor _resultImage;
-        private List<double> capPropValues;
+        private List<double> _capPropValues;
 
         private const string ImageResultEventID = "ReadImageEvent";
         private readonly ScriptablePoint _readImageEvent;
@@ -55,7 +55,7 @@ namespace USB_Camera_Plugin
         //Initialize variables and create scriptable components.
         public USBCam()
         {
-            capPropValues = new List<double>();
+            _capPropValues = new List<double>();
 
             _readImageEvent = new ScriptablePoint(
                 ImageResultEventID,
@@ -221,7 +221,7 @@ namespace USB_Camera_Plugin
         {
             try
             {
-                capPropValues.Clear();
+                _capPropValues.Clear();
             }catch(Exception ex) {
                 Console.WriteLine($"An error occurred: {ex.Message}");
                 RunScript(GetErrorEventID, "Capture property disposal issue :" + ex.Message);
@@ -231,7 +231,7 @@ namespace USB_Camera_Plugin
             {
                 foreach (CapProp prop in Enum.GetValues(typeof(CapProp)))
                 {
-                    capPropValues.Add(_capture.GetCaptureProperty(prop));
+                    _capPropValues.Add(_capture.GetCaptureProperty(prop));
                 }
             }catch(Exception ex)
             {
@@ -239,7 +239,7 @@ namespace USB_Camera_Plugin
                 RunScript(GetErrorEventID, "Capture property enumeration issue: " + ex.Message);
             }
 
-            return capPropValues;
+            return _capPropValues;
         }
 
         ///Load a list of capture properties to the camera
