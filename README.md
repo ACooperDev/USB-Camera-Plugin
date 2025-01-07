@@ -15,7 +15,7 @@ Scriptable Events
 
 $ Functions
 - camIndex
-	- Returns int
+	- int
 	- Get/set the index of the USB camera.
 - FireCapPropWizard()
 	- Returns void
@@ -29,7 +29,9 @@ $ Functions
 - FireGetCapProp(Emgu.CV.CVEnum.CapProp CapProp)
 	- Returns double
 	- The enumerable value representing a USB camera capture property.
-- FireLiveMode
+- FireLiveMode(bool live)
+	- Returns void
+	- Enables/disables USB camera live mode.
 - FireLoadCapProp
 - FireSaveCapProp
 - FireSetCapProp(Emgu.CV.CVEnum.CapProp CapProp, double value)
